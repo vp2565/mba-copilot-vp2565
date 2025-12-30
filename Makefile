@@ -12,8 +12,8 @@ RST=\033[0m
 # Python Environment Setup
 NAME := mba-copilot
 PYMAJOR := 3
-PYREV := 11
-PYPATCH := 9
+PYREV := 12
+PYPATCH := 2
 PYVERSION := ${PYMAJOR}.${PYREV}.${PYPATCH}
 POETRY_VERSION := 1.8.3
 PYENV := ~/.pyenv/versions/${PYVERSION}

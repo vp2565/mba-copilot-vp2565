@@ -1,78 +1,214 @@
-# MBA Copilot 🎓
+# MBA Copilot
 
 Your personal AI assistant for MBA coursework. Upload your course materials and chat with them using RAG (Retrieval-Augmented Generation).
 
-**Stack:** Python (FastAPI) backend + TypeScript/React frontend + Tailwind CSS
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FYOUR_USERNAME%2Fmba-copilot&env=OPENAI_API_KEY,PINECONE_API_KEY&envDescription=API%20keys%20for%20OpenAI%20and%20Pinecone&envLink=https%3A%2F%2Fgithub.com%2FYOUR_USERNAME%2Fmba-copilot%23-quick-start-for-students&project-name=mba-copilot&repository-name=mba-copilot)
+**Stack:** Next.js + Python (FastAPI) + Pinecone + OpenAI
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
-- [For Students: Quick Start](#-quick-start-for-students)
-- [For Instructors: Setup & GitHub](#-for-instructors-complete-setup)
-- [Local Development](#-local-development)
-- [Project Structure](#-project-structure)
-- [Customization](#-customization)
-- [Troubleshooting](#-troubleshooting)
+- [Quick Start (For Students)](#quick-start-for-students)
+- [For Instructors: Complete Setup](#for-instructors-complete-setup)
+- [Local Development](#local-development)
+- [Project Structure](#project-structure)
+- [Customization](#customization)
+- [Troubleshooting](#troubleshooting)
+- [Cost Estimates](#cost-estimates)
 
 ---
 
-## 🚀 Quick Start (For Students)
+## Quick Start (For Students)
 
 ### Step 1: Get API Keys (5 minutes)
 
 **OpenAI API Key:**
-1. Go to [platform.openai.com](https://platform.openai.com/api-keys)
+
+1. Go to <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>
 2. Sign in or create account
 3. Click "Create new secret key"
 4. Copy the key (starts with `sk-`)
 
 **Pinecone API Key:**
-1. Go to [app.pinecone.io](https://app.pinecone.io/)
+
+1. Go to <a href="https://app.pinecone.io/" target="_blank">app.pinecone.io</a>
 2. Create a free account
 3. Click "API Keys" in the sidebar
 4. Copy your API key
 
-### Step 2: Create Pinecone Index (2 minutes)
+### Step 2: Fork the Repository
+
+1. Go to the [MBA Copilot GitHub repository](https://github.com/YOUR_INSTRUCTOR_USERNAME/mba-copilot)
+2. Click the **"Fork"** button in the top right
+3. This creates your own copy of the project
+
+### Step 3: Create Pinecone Index (2 minutes)
 
 In the Pinecone console:
+
 1. Click **"Create Index"**
-2. **Name:** `mba-copilot`
-3. **Dimensions:** `1536`
-4. **Metric:** `cosine`
-5. Click **"Create Index"**
+2. Configure the index:
+   - **Name:** `mba-copilot`
+   - **Dimensions:** `1024`
+   - **Metric:** `cosine`
+   - **Cloud Provider:** AWS (or your preferred region)
+   - **Region:** `us-east-1` (or closest to you)
+3. Click **"Create Index"**
 
-### Step 3: Deploy (3 minutes)
+**Important:** The dimensions **must be 1024** to match the OpenAI `text-embedding-3-large` model used by this app.
 
-1. Click the **"Deploy with Vercel"** button above
-2. Connect your GitHub account
-3. Enter your API keys when prompted
-4. Click **Deploy**
+### Step 4: Generate Auth Secret
+
+#### Option 1: Online Generator (Works on all platforms)
+
+Visit <a href="https://generate-secret.vercel.app/32" target="_blank">generate-secret.vercel.app/32</a> and copy the generated secret.
+
+#### Option 2: Command Line (No third-party websites, generated locally on your machine)
+
+macOS/Linux:
+
+```bash
+openssl rand -base64 32
+```
+
+Windows PowerShell:
+
+```powershell
+-join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | ForEach-Object {[char]$_})
+```
+
+Windows (if Git is installed):
+
+```bash
+openssl rand -base64 32
+```
+
+Copy the output - you'll need it in the next step.
+
+### Step 5: Choose a Password
+
+Pick a memorable password for accessing your copilot. You'll share this with anyone you want to give access (classmates, study group members, etc.).
+
+**Example:** `mba-copilot-2024` or `columbia-rag-spring`
+
+### Step 6: Deploy to Vercel
+
+1. Go to <a href="https://vercel.com" target="_blank">vercel.com</a> and sign in
+2. Click **"Add New"** → **"Project"**
+3. Import your **forked** GitHub repository
+4. Configure the project:
+
+   | Setting | Value |
+   |---------|-------|
+   | **Framework Preset** | `Next.js` |
+   | **Root Directory** | `.` (leave default) |
+   | **Build Command** | `npm run build` |
+   | **Output Directory** | `.next` |
+   | **Install Command** | `npm install` |
+
+5. **Add Environment Variables** (click "Environment Variables" section):
+
+   | Variable | Value | Where to Get It |
+   |----------|-------|-----------------|
+   | `AUTH_SECRET` | Output from `openssl rand -base64 32` | Step 4 - random secret |
+   | `AUTH_PASSWORD` | `your-password-here` | Step 5 - your chosen password |
+   | `OPENAI_API_KEY` | `sk-...` | From Step 1 - starts with `sk-` |
+   | `PINECONE_API_KEY` | `pc-...` | From Step 1 - your Pinecone API key |
+   | `PINECONE_INDEX` | `mba-copilot` | Must match the index name from Step 3 |
+
+   **Important:** Make sure to add these for **all environments** (Production, Preview, Development)
+
+6. Click **"Deploy"**
+
+#### Wait for Deployment (2-3 minutes)
+
+Vercel will:
+
+- Install dependencies
+- Build your Next.js app
+- Deploy Python serverless functions
+- Provide you with a live URL
 
 **Done!** Your app will be live at `https://your-project.vercel.app`
 
+### Step 7: Sign In
+
+1. Go to your deployed app URL
+2. Enter the password you set in `AUTH_PASSWORD`
+3. Click "Sign In"
+4. You're in! You'll stay logged in for 30 days.
+
+**Note:** Anyone with your password can access the app. Keep it secure!
+
+### Step 8: Managing Access
+
+**To share access with someone:**
+
+1. Give them your app URL
+2. Share the `AUTH_PASSWORD` with them (via secure channel)
+3. They sign in with the password
+
+**To revoke access from everyone:**
+
+1. Go to Vercel → Your Project → Settings → Environment Variables
+2. Change `AUTH_PASSWORD` to a new value
+3. Redeploy (Vercel will prompt you)
+4. Share the new password only with people you still want to have access
+5. Everyone else will be logged out and can't sign back in
+
+### Step 9: Making Updates (Auto-Deploy)
+
+Once deployed, Vercel automatically redeploys your app whenever you push changes to your GitHub repository.
+
+**To update your app:**
+
+1. Make changes to your forked repository on GitHub (edit files directly or push from local)
+2. Commit and push to the `main` branch
+3. Vercel automatically detects the changes and redeploys (takes 2-3 minutes)
+4. You'll get a notification when the new version is live
+
+**To disable auto-deploy:**
+
+1. Go to your Vercel project dashboard
+2. Settings → Git → Production Branch
+3. Uncheck "Automatically deploy" (not recommended)
+
+### Troubleshooting Deployment
+
+**If deployment fails:**
+
+1. Check the build logs in Vercel dashboard
+2. Verify all environment variables are set correctly
+3. Make sure your Pinecone index exists and has **1024 dimensions** (not 768 or 1536)
+4. Ensure your OpenAI API key is valid and has credits
+5. Verify you're using the `text-embedding-3-large` model (default in this project)
+
+**Common Pinecone issues:**
+
+- **"Dimension mismatch"** - Your index must have exactly 1024 dimensions
+- **"Index not found"** - Check that `PINECONE_INDEX` matches your index name exactly
+- **"Invalid API key"** - Verify you copied the full API key from Pinecone console
+
 ---
 
-## 👨‍🏫 For Instructors: Complete Setup
+## For Instructors: Complete Setup
 
 This section walks you through setting up the template on GitHub so students can deploy it.
 
 ### Prerequisites
 
-- [Git](https://git-scm.com/downloads) installed
-- [pyenv](https://github.com/pyenv/pyenv#installation) installed
-- [Node.js 18+](https://nodejs.org/) installed
+- <a href="https://git-scm.com/downloads" target="_blank">Git</a> installed
+- <a href="https://github.com/pyenv/pyenv#installation" target="_blank">pyenv</a> installed
+- <a href="https://nodejs.org/" target="_blank">Node.js 18+</a> installed
 - Make (comes with macOS/Linux, or install via `choco install make` on Windows)
-- A [GitHub](https://github.com/) account
+- A <a href="https://github.com/" target="_blank">GitHub</a> account
 - A code editor (VS Code recommended)
 
 ### Step 1: Create GitHub Repository
 
 **Option A: Via GitHub Website (Easier)**
 
-1. Go to [github.com/new](https://github.com/new)
+1. Go to <a href="https://github.com/new" target="_blank">github.com/new</a>
 2. Repository name: `mba-copilot`
 3. Description: "Personal AI copilot for MBA students"
 4. Choose **Public** (so students can fork it)
@@ -85,7 +221,7 @@ This section walks you through setting up the template on GitHub so students can
 ```bash
 # Install GitHub CLI if you haven't
 brew install gh  # macOS
-# or visit https://cli.github.com/
+# or visit <a href="https://cli.github.com/" target="_blank">cli.github.com</a>
 
 # Login to GitHub
 gh auth login
@@ -125,6 +261,7 @@ make setup
 ```
 
 This will:
+
 - Install Python 3.11.9 via pyenv (if not present)
 - Create a virtualenv named `mba-copilot-3.11.9`
 - Install Poetry and all Python dependencies
@@ -143,6 +280,7 @@ nano .env.local  # Terminal
 ```
 
 Add your keys:
+
 ```
 OPENAI_API_KEY=sk-your-actual-key
 PINECONE_API_KEY=your-actual-pinecone-key
@@ -156,15 +294,17 @@ make dev-all
 ```
 
 You should see:
+
 ```
 *** Starting both frontend and backend
 Frontend: http://localhost:3000
 Backend:  http://localhost:8000
 ```
 
-**Open http://localhost:3000** in your browser.
+**Open <http://localhost:3000>** in your browser.
 
 **Test it:**
+
 1. Upload a PDF or text file
 2. Wait for "X chunks indexed" message
 3. Ask a question about the document
@@ -195,6 +335,7 @@ Edit `README.md` and replace `YOUR_USERNAME` with your actual GitHub username in
 ```
 
 Commit and push:
+
 ```bash
 git add README.md
 git commit -m "Update deploy button URL"
@@ -210,12 +351,12 @@ git push
 
 ---
 
-## 💻 Local Development
+## Local Development
 
 ### Prerequisites
 
-- [pyenv](https://github.com/pyenv/pyenv) - Python version management
-- [Node.js 18+](https://nodejs.org/)
+- <a href="https://github.com/pyenv/pyenv" target="_blank">pyenv</a> - Python version management
+- <a href="https://nodejs.org/" target="_blank">Node.js 18+</a>
 - Make (comes with macOS/Linux)
 
 ### Quick Start
@@ -229,6 +370,7 @@ make dev-all
 ```
 
 Or run them separately:
+
 ```bash
 # Terminal 1: Backend
 make dev-api
@@ -283,6 +425,8 @@ The `next.config.js` file proxies `/api/*` requests to the Python backend during
 
 | Variable | Required | Description |
 |----------|----------|-------------|
+| `AUTH_SECRET` | Yes | Random secret for NextAuth (generate with `openssl rand -base64 32`) |
+| `AUTH_PASSWORD` | Yes | Password for accessing the app |
 | `OPENAI_API_KEY` | Yes | Your OpenAI API key |
 | `PINECONE_API_KEY` | Yes | Your Pinecone API key |
 | `OPENAI_BASE_URL` | No | Custom OpenAI endpoint (for school access) |
@@ -312,7 +456,7 @@ npm run setup
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 mba-copilot/
@@ -336,7 +480,7 @@ mba-copilot/
 
 ---
 
-## ⚙️ Customization
+## Customization
 
 ### Change the AI Model
 
@@ -381,11 +525,12 @@ colors: {
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Local Development Issues
 
 **"pyenv: command not found"**
+
 ```bash
 # macOS
 brew install pyenv pyenv-virtualenv
@@ -398,34 +543,60 @@ eval "$(pyenv virtualenv-init -)"
 ```
 
 **"Cannot connect to backend"**
+
 - Make sure you ran `make dev-all` or `make dev-api`
 - Check that port 8000 is not in use: `lsof -i :8000`
 - Verify `.env.local` exists with valid API keys
 
 **"Module not found" in Python**
+
 ```bash
 make nuke
 make setup
 ```
 
 **"CORS error"**
+
 - Access via `localhost:3000`, not `127.0.0.1:3000`
 
 ### Deployment Issues
 
 **"No relevant documents found"**
+
 - Upload documents first
 - Check Pinecone console to verify index exists
-- Ensure index has dimension 1536
+- Ensure index has dimension 1024
 
 **"Upload failed"**
+
 - Check file size (max ~10MB)
 - Try a different file format
 - Check Vercel function logs
 
 **"API errors"**
+
 - Verify API keys in Vercel environment settings
 - Check Vercel function logs for details
+
+### Authentication Issues
+
+**"Invalid credentials" error:**
+
+1. Double-check you're entering the correct `AUTH_PASSWORD`
+2. Verify `AUTH_PASSWORD` is set correctly in Vercel environment variables
+3. If you recently changed it, make sure you redeployed
+
+**Can't sign in at all:**
+
+- Verify `AUTH_SECRET` is set in environment variables
+- Make sure `AUTH_SECRET` is the same across all deployments
+- Clear browser cookies and try again
+
+**Session expires too quickly:**
+
+- Sessions last 30 days by default
+- If you change `AUTH_SECRET`, all sessions are invalidated
+- Clearing browser cookies will also log you out
 
 ### Getting Help
 
@@ -435,7 +606,7 @@ make setup
 
 ---
 
-## 💰 Cost Estimates
+## Cost Estimates
 
 | Service | Free Tier | Typical Usage |
 |---------|-----------|---------------|
@@ -443,9 +614,13 @@ make setup
 | **OpenAI** | Pay-as-you-go | $1-5/semester |
 | **Vercel** | Hobby plan free | $0 |
 
+**Total estimated cost:** $1-5/semester (OpenAI usage only)
+
+**No external auth services needed!** Authentication uses simple password check built into the app.
+
 ---
 
-## 📝 License
+## License
 
 MIT - Use and modify freely for your own learning!
 

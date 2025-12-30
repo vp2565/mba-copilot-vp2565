@@ -6,8 +6,10 @@ const nextConfig = {
     if (process.env.NODE_ENV === 'development') {
       return [
         {
-          source: '/api/:path*',
-          destination: 'http://localhost:8000/api/:path*',
+          // Proxy /backend/* to Python backend
+          // /api/auth/* is handled by Next.js (NextAuth)
+          source: '/backend/:path*',
+          destination: 'http://localhost:8000/backend/:path*',
         },
       ];
     }

@@ -1,19 +1,19 @@
 {
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "rewrites": [
+      "src": "package.json",
+      "use": "@vercel/next"
+    },
     {
-      "source": "/api/:path*",
-      "destination": "/api/index.py"
+      "src": "serverless/backend/index.py",
+      "use": "@vercel/python",
+      "config": { "maxDuration": 60 }
     }
   ],
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 60
+  "routes": [
+    {
+      "src": "/backend/(.*)",
+      "dest": "/serverless/backend/index.py"
     }
-  }
+  ]
 }
