@@ -24,11 +24,11 @@ Your personal AI assistant for MBA coursework. Upload your course materials and 
 
 The copilot requires keys from both OpenAI and Pinecone.
 
-**OpenAI Configuration:**
+#### Step 1.1: OpenAI Configuration
 
 You have two options for accessing OpenAI:
 
-#### Option A: Use Columbia Business School's OpenAI Access (Recommended for students)
+**Option A: Use Columbia Business School's OpenAI Access (Recommended for students)**
 
 If your instructor has provided access to Columbia's OpenAI endpoint:
 
@@ -36,9 +36,9 @@ If your instructor has provided access to Columbia's OpenAI endpoint:
 2. You'll use:
    - **API Key:** The key provided by your instructor
    - **Base URL:** `https://cbsai.business.columbia.edu/api/v1`
-3. Skip to Step 2 (you don't need to create your own OpenAI account)
+3. Move on to create Pinecone API Key as below (you don't need to create your own OpenAI account)
 
-#### Option B: Use Your Own OpenAI Account
+**Option B: Use Your Own OpenAI Account**
 
 1. Go to <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a>
 2. Sign in or create account
@@ -49,21 +49,27 @@ If your instructor has provided access to Columbia's OpenAI endpoint:
    - **Base URL:** `https://api.openai.com/v1`
 6. Note: You'll be charged based on usage (~$1-5/semester)
 
-**Pinecone API Key:**
+#### Step 1.2: Pinecone API Key
 
 1. Go to <a href="https://app.pinecone.io/" target="_blank">app.pinecone.io</a>
-2. Create a free account
-3. Click "API Keys" in the sidebar
-4. Click **"+ API Key"**
-5. Give the key a name (e.g., mbacopilot)
-6. Click **"Create Key"**
-7. Copy and Save your API key
+2. Create a free account (Note: you do not need to fill all the account information - "Skip" button availabe on top of the page)
+
+Pinecone will provide you with a default API key which you may use. Make sure to copy and save the API key.
+
+If you need to generate a new key, follow the steps below:
+
+1. Click "API Keys" in the sidebar
+2. Click **"+ API Key"**
+3. Give the key a name (e.g., mbacopilot)
+4. Click **"Create Key"**
+5. Copy and Save your API key
 
 ### Step 2: Fork the Repository
 
-1. Go to the [MBA Copilot GitHub repository](https://github.com/malekbensliman/mba-copilot)
-2. Click the **"Fork"** button in the top right
-3. This creates your own copy of the project
+1. Create a github account
+2. Go to the [MBA Copilot GitHub repository](https://github.com/malekbensliman/mba-copilot)
+3. Click the **"Fork"** button in the top right
+4. This creates your own copy of the project
 
 ### Step 3: Create Pinecone Index (2 minutes)
 
@@ -84,31 +90,7 @@ In the Pinecone console:
 
 ### Step 4: Generate Auth Secret
 
-#### Option 1: Online Generator (Works on all platforms)
-
 Visit <a href="https://generate-secret.vercel.app/32" target="_blank">generate-secret.vercel.app/32</a> and copy the generated secret.
-
-#### Option 2: Command Line (No third-party websites, generated locally on your machine)
-
-macOS/Linux:
-
-```bash
-openssl rand -base64 32
-```
-
-Windows PowerShell:
-
-```powershell
--join ((48..57) + (65..90) + (97..122) | Get-Random -Count 32 | ForEach-Object {[char]$_})
-```
-
-Windows (if Git is installed):
-
-```bash
-openssl rand -base64 32
-```
-
-Copy the output - you'll need it in the next step.
 
 ### Step 5: Choose a Password
 
@@ -120,8 +102,8 @@ Pick a memorable password for accessing your copilot. You'll share this with any
 
 1. Go to <a href="https://vercel.com" target="_blank">vercel.com</a> and sign in
 2. Click **"Add New"** → **"Project"**
-3. Import your **forked** GitHub repository
-4. Configure the project (click "Build and Output Settings"):
+3. Click **"Continue with GitHub"** and follow the instructions
+4. In the **New Project** page, choose a project name and configure the project (click "Build and Output Settings"):
 
    | Setting | Value |
    |---------|-------|
