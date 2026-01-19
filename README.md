@@ -105,24 +105,24 @@ Pick a memorable password for accessing your copilot. You'll share this with any
 3. Click **"Continue with GitHub"** and follow the instructions
 4. In the **New Project** page, choose a project name and configure the project (click "Build and Output Settings"):
 
-   | Setting | Value |
-   |---------|-------|
-   | **Framework Preset** | `Next.js` |
-   | **Root Directory** | `.` (leave default) |
-   | **Build Command** | `npm run build` |
-   | **Output Directory** | `.next` |
-   | **Install Command** | `npm install` |
+   | Setting              | Value               |
+   | -------------------- | ------------------- |
+   | **Framework Preset** | `Next.js`           |
+   | **Root Directory**   | `.` (leave default) |
+   | **Build Command**    | `npm run build`     |
+   | **Output Directory** | `.next`             |
+   | **Install Command**  | `npm install`       |
 
 5. **Add Environment Variables** (click "Environment Variables" section and "Add More"):
 
-   | Variable | Value | Where to Get It |
-   |----------|-------|-----------------|
-   | `AUTH_SECRET` | Output from `openssl rand -base64 32` | Step 4 - random secret |
-   | `AUTH_PASSWORD` | `your-password-here` | Step 5 - your chosen password |
-   | `OPENAI_API_KEY` | `sk-...` or instructor-provided key | From Step 1 |
-   | `OPENAI_BASE_URL` | `https://api.openai.com/v1` OR `https://cbsai.business.columbia.edu/api/v1` | From Step 1 - depends on option chosen |
-   | `PINECONE_API_KEY` | `pc-...` | From Step 1 - your Pinecone API key |
-   | `PINECONE_INDEX` | `mba-copilot` | Must match the index name from Step 3 |
+   | Variable           | Value                                                                       | Where to Get It                        |
+   | ------------------ | --------------------------------------------------------------------------- | -------------------------------------- |
+   | `AUTH_SECRET`      | Output from `openssl rand -base64 32`                                       | Step 4 - random secret                 |
+   | `AUTH_PASSWORD`    | `your-password-here`                                                        | Step 5 - your chosen password          |
+   | `OPENAI_API_KEY`   | `sk-...` or instructor-provided key                                         | From Step 1                            |
+   | `OPENAI_BASE_URL`  | `https://api.openai.com/v1` OR `https://cbsai.business.columbia.edu/api/v1` | From Step 1 - depends on option chosen |
+   | `PINECONE_API_KEY` | `pc-...`                                                                    | From Step 1 - your Pinecone API key    |
+   | `PINECONE_INDEX`   | `mba-copilot`                                                               | Must match the index name from Step 3  |
 
    **Important:** Make sure to add these for **all environments** (Production, Preview, Development)
 
@@ -157,6 +157,8 @@ Vercel Blob storage is used as temporary storage for large files during upload. 
 10. Click **"Settings"** tab in the top navigation
 11. Click **"Deployment Protection"** on the left side
 12. Disable **"Vercel Authentication"**
+13. Click **"Deployments"** tab in the top navigation
+14. Select the three dots in your current deployment and click on **Redeploy**
 
 Vercel will automatically add the `BLOB_READ_WRITE_TOKEN` environment variable to your project.
 
@@ -412,7 +414,7 @@ Or run them separately:
 # Terminal 1: Backend
 make dev-api
 
-# Terminal 2: Frontend  
+# Terminal 2: Frontend
 make dev
 ```
 
@@ -460,14 +462,14 @@ The `next.config.js` file proxies `/api/*` requests to the Python backend during
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `AUTH_SECRET` | Yes | Random secret for NextAuth (generate with `openssl rand -base64 32`) |
-| `AUTH_PASSWORD` | Yes | Password for accessing the app |
-| `OPENAI_API_KEY` | Yes | Your OpenAI API key (from OpenAI or instructor) |
-| `OPENAI_BASE_URL` | Yes | OpenAI endpoint: `https://api.openai.com/v1` or `https://cbsai.business.columbia.edu/api/v1` |
-| `PINECONE_API_KEY` | Yes | Your Pinecone API key |
-| `PINECONE_INDEX` | No | Index name (default: `mba-copilot`) |
+| Variable           | Required | Description                                                                                  |
+| ------------------ | -------- | -------------------------------------------------------------------------------------------- |
+| `AUTH_SECRET`      | Yes      | Random secret for NextAuth (generate with `openssl rand -base64 32`)                         |
+| `AUTH_PASSWORD`    | Yes      | Password for accessing the app                                                               |
+| `OPENAI_API_KEY`   | Yes      | Your OpenAI API key (from OpenAI or instructor)                                              |
+| `OPENAI_BASE_URL`  | Yes      | OpenAI endpoint: `https://api.openai.com/v1` or `https://cbsai.business.columbia.edu/api/v1` |
+| `PINECONE_API_KEY` | Yes      | Your Pinecone API key                                                                        |
+| `PINECONE_INDEX`   | No       | Index name (default: `mba-copilot`)                                                          |
 
 ### Useful Commands
 
@@ -541,7 +543,7 @@ SYSTEM_PROMPT = """You are an intelligent assistant for MBA students...
 
 ```python
 CHUNK_SIZE = 1000      # Characters per chunk
-CHUNK_OVERLAP = 200    # Overlap between chunks  
+CHUNK_OVERLAP = 200    # Overlap between chunks
 TOP_K = 5              # Chunks to retrieve
 MIN_SCORE = 0.7        # Minimum similarity (0-1)
 ```
@@ -647,12 +649,12 @@ make setup
 
 ## Cost Estimates
 
-| Service | Free Tier | Typical Usage |
-|---------|-----------|---------------|
-| **Pinecone** | 2GB storage, 1M reads/month | $0 |
-| **OpenAI** | Pay-as-you-go | $1-5/semester |
-| **Vercel** | Hobby plan free | $0 |
-| **Vercel Blob** | 500MB storage | $0* |
+| Service         | Free Tier                   | Typical Usage |
+| --------------- | --------------------------- | ------------- |
+| **Pinecone**    | 2GB storage, 1M reads/month | $0            |
+| **OpenAI**      | Pay-as-you-go               | $1-5/semester |
+| **Vercel**      | Hobby plan free             | $0            |
+| **Vercel Blob** | 500MB storage               | $0\*          |
 
 **Total estimated cost:** $1-5/semester (OpenAI usage only)
 
@@ -668,4 +670,4 @@ MIT - Use and modify freely for your own learning!
 
 ---
 
-*Built for Columbia Business School's "Generative AI for Business" course.*
+_Built for Columbia Business School's "Generative AI for Business" course._
