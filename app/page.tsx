@@ -198,10 +198,8 @@ export default function Home() {
     const isFolder = firstPath.includes('/');
     const folderName = isFolder ? firstPath.split('/')[0] : null;
 
-    // Size threshold for using blob upload (4MB)
+    // Size threshold for using server-side upload proxy (4MB)
     const BLOB_UPLOAD_THRESHOLD = 4 * 1024 * 1024;
-    const blobUploadedFiles: string[] = []; // Track files uploaded via blob
-
     for (const file of validFiles) {
       try {
         const fileWithPath = file as File & { webkitRelativePath?: string; path?: string };
@@ -237,31 +235,52 @@ export default function Home() {
 
         // Choose upload method based on file size
         if (file.size > BLOB_UPLOAD_THRESHOLD) {
-          // Large files: Use client-side blob upload
-          console.log(`Using blob upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+          // Large files: each chunk is uploaded as an individual blob via put()
+          // (no 5MB minimum like S3 multipart), then the backend downloads all
+          // parts in parallel, concatenates, and processes the assembled file.
+          const CHUNK_SIZE = 3.5 * 1024 * 1024; // 3.5MB (within 4.5MB serverless limit)
+          const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+          console.log(`Using chunked upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB, ${totalChunks} chunks)`);
 
-          const { upload } = await import('@vercel/blob/client');
+          // Step 1: Upload each chunk as an individual blob
+          const parts: Array<{ url: string; partNumber: number }> = [];
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
+            const partNumber = i + 1;
 
-          const blob = await upload(finalFilename, file, {
-            access: 'public',
-            handleUploadUrl: '/api/upload-blob',
-            clientPayload: JSON.stringify({ originalFilename: finalFilename }),
+            setUploadStatus(`Uploading ${displayName}... (part ${partNumber}/${totalChunks}) Do not refresh the page.`);
+
+            const partFormData = new FormData();
+            partFormData.append('chunk', chunk);
+            partFormData.append('partNumber', String(partNumber));
+
+            const partRes = await fetch('/api/upload-chunk?action=part', {
+              method: 'POST',
+              body: partFormData,
+            });
+            if (!partRes.ok) {
+              const errData = await partRes.json().catch(() => ({}));
+              throw new Error(errData.error || `Failed to upload part ${partNumber}`);
+            }
+            const partData = await partRes.json();
+            parts.push({ url: partData.url, partNumber: partData.partNumber });
+          }
+
+          // Step 2: Complete — backend downloads parts, concatenates, and processes
+          setUploadStatus(`Processing ${displayName}... Do not refresh the page.`);
+          const completeRes = await fetch('/api/upload-chunk?action=complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ parts, filename: finalFilename }),
           });
+          if (!completeRes.ok) {
+            const errData = await completeRes.json().catch(() => ({}));
+            throw new Error(errData.error || 'Failed to process upload');
+          }
 
-          console.log('Blob uploaded to:', blob.url);
-          console.log('Background processing started. File will appear in document list shortly.');
-
-          // Track this file for polling
-          blobUploadedFiles.push(finalFilename);
-
-          // The backend processing happens asynchronously in onUploadCompleted
-          // Return a temporary response and let the user know to wait
-          data = {
-            success: true,
-            document_id: `temp_${Date.now()}`, // Temporary ID, will refresh
-            filename: finalFilename,
-            chunks: 0,
-          };
+          data = await completeRes.json();
         } else {
           // Small files: Direct upload
           console.log(`Using direct upload for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
@@ -293,41 +312,7 @@ export default function Home() {
       }
     }
 
-    // If we uploaded files via blob, poll until they appear in the document tree
-    if (blobUploadedFiles.length > 0) {
-      console.log('Waiting for blob-uploaded files to be processed...');
-      setUploadStatus('Processing large files...');
-
-      let pollAttempts = 0;
-      const maxPolls = 30; // Poll for up to 30 seconds
-
-      while (pollAttempts < maxPolls) {
-        await fetchDocuments();
-
-        // Check if all blob-uploaded files are now in the document list
-        const currentDocs = await fetch('/backend/documents').then(r => r.json());
-        const docFilenames = currentDocs.documents?.map((d: any) => d.filename) || [];
-
-        const allFilesProcessed = blobUploadedFiles.every(filename =>
-          docFilenames.includes(filename)
-        );
-
-        if (allFilesProcessed) {
-          console.log('All blob-uploaded files processed successfully');
-          break;
-        }
-
-        // Wait 1 second before next poll
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        pollAttempts++;
-      }
-
-      if (pollAttempts >= maxPolls) {
-        console.warn('Some blob-uploaded files may still be processing');
-      }
-    } else {
-      await fetchDocuments();
-    }
+    await fetchDocuments();
 
     if (failCount === 0) {
       const message = folderName
